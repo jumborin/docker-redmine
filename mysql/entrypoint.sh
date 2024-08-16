@@ -67,11 +67,11 @@ initialize_mysql_database() {
   # initialize MySQL data directory
   if [ ! -d ${MYSQL_DATA_DIR}/mysql ]; then
     echo "Installing database..."
-    mysqld --initialize-insecure --user=mysql --lower_case_table_names=0 >/dev/null 2>&1
+    mysqld --initialize-insecure --user=mysql --lower_case_table_names=2 >/dev/null 2>&1
 
     # start mysql server
     echo "Starting MySQL server..."
-    /usr/bin/mysqld_safe --lower_case_table_names=0 >/dev/null 2>&1 &
+    /usr/bin/mysqld_safe --lower_case_table_names=2 >/dev/null 2>&1 &
 
     # wait for mysql server to start (max 30 seconds)
     timeout=30
@@ -110,7 +110,7 @@ initialize_mysql_database() {
 create_users_and_databases() {
   # create new user / database
   if [ -n "${DB_USER}" -o -n "${DB_NAME}" ]; then
-    /usr/bin/mysqld_safe --lower_case_table_names=0 >/dev/null 2>&1 &
+    /usr/bin/mysqld_safe --lower_case_table_names=2 >/dev/null 2>&1 &
 
     # wait for mysql server to start (max 30 seconds)
     timeout=30

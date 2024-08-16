@@ -3,12 +3,12 @@ FROM sameersbn/redmine:5.1.3
 ENV SESSION_KEY_SUFFIX=""
 
 # Copy gems
-COPY vendor/cache/ vendor/cache/
+#COPY vendor/cache/ vendor/cache/
 
 # Change gems authority
-RUN set -ux \
-    \
-    && chown -R redmine:redmine vendor/cache
+#RUN set -ux \
+#    \
+#    && chown -R redmine:redmine vendor/cache
 
 # Install tools
 RUN set -ux \
@@ -26,7 +26,7 @@ RUN set -ux \
 RUN set -ux \
     && gosu redmine git config --global http.sslverify false \
 # Install plugins
-    && gosu redmine git clone -b 0.3.4 --depth 1 https://github.com/akiko-pusu/redmine_banner.git plugins/redmine_banner \
+    #&& gosu redmine git clone -b 0.3.4 --depth 1 https://github.com/akiko-pusu/redmine_banner.git plugins/redmine_banner \
     && gosu redmine git clone -b v1.0.2 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
     #&& gosu redmine git clone --depth 1 https://github.com/AlphaNodes/redmine_messenger.git plugins/redmine_messenger \
     && gosu redmine git clone -b 0.9.5 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions \
@@ -38,7 +38,7 @@ RUN set -ux \
     \
 # Install gems
     #&& gosu redmine bundle install --local --no-cache --without development test
-    && gosu redmine bundle install --no-cache --without development test
+    && gosu redmine bundle install --no-cache
 
 
 # set SESSION_KEY_SUFFIX
