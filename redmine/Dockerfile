@@ -2,14 +2,6 @@ FROM sameersbn/redmine:5.1.3
 
 ENV SESSION_KEY_SUFFIX=""
 
-# Copy gems
-#COPY vendor/cache/ vendor/cache/
-
-# Change gems authority
-#RUN set -ux \
-#    \
-#    && chown -R redmine:redmine vendor/cache
-
 # Install tools
 RUN set -ux \
     \
@@ -19,17 +11,43 @@ RUN set -ux \
         gzip \
         #make \
         #unzip \
+    && apt-get remove -y \
+        mariadb-client-core \
+        mariadb-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy MySQL Installer
+# URL:https://dev.mysql.com/downloads/mysql/
+COPY tmp_mysql_installer/*.deb /tmp/
+
+# install MySQL
+RUN set -ux \
+    && dpkg-preconfigure /tmp/mysql-community-server_*.deb \
+    && dpkg -i /tmp/mysql-common_*.deb \
+    && dpkg -i /tmp/mysql-community-client-plugins_*.deb \
+    && dpkg -i /tmp/mysql-community-client-core_*.deb \
+    && dpkg -i /tmp/mysql-community-client_*.deb \
+    && dpkg -i /tmp/mysql-client_*.deb \
+    && apt-get -f install
+
+# Copy gems
+#COPY vendor/cache/ vendor/cache/
+
+# Change gems authority
+#RUN set -ux \
+#    \
+#    && chown -R redmine:redmine vendor/cache
 
 # Install Plugins And Themes
 RUN set -ux \
     && gosu redmine git config --global http.sslverify false \
 # Install plugins
     #&& gosu redmine git clone -b 0.3.4 --depth 1 https://github.com/akiko-pusu/redmine_banner.git plugins/redmine_banner \
-    && gosu redmine git clone -b v1.0.2 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
-    && gosu redmine git clone -b 0.9.5 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions \
-    && gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize \
+    #&& gosu redmine git clone -b v1.0.2 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
+    #&& gosu redmine git clone -b 0.9.5 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions \
+    #&& gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize \
+    #&& gosu redmine git clone -b v0.3.7 --depth 1 https://github.com/onozaty/redmica_ui_extension.git plugins/redmica_ui_extension \
     \
 # Install themes
     && gosu redmine git clone -b 0.5.0 --depth 1 https://github.com/farend/redmine_theme_farend_bleuclair.git public/themes/bleuclair \
@@ -38,11 +56,11 @@ RUN set -ux \
     \
 # Install gems
     && gosu redmine bundle config set without development test \
-    #&& gosu redmine bundle install --local --no-cache
     && gosu redmine bundle install --no-cache
+    #&& gosu redmine bundle install --local --no-cache
 
 
-# set SESSION_KEY_SUFFIX
+# Set SESSION_KEY_SUFFIX
 RUN set -ux \
     \
     #&& sed -i -r "s/(:filter_html => true)/#\1/" lib/redmine/wiki_formatting/markdown/formatter.rb \
