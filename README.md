@@ -15,7 +15,7 @@ docker-compose settings for docker-redmine
   * MySQL：8.0.39
 * MySQL Container
   * Base OS：Ubuntu 24.04 LTS
-  * MySQL：8.0.39
+  * MySQL：8.0.40
   
 ## 参考サイト
 * sameersbn/docker-redmine(github)
