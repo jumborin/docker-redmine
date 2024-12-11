@@ -1,4 +1,4 @@
-# docker-redmine
+# docker-redmine for Windows
 docker-compose settings for docker-redmine
 
 ## 利用方法
