@@ -52,7 +52,6 @@ RUN set -ux \
 # Install themes
     && gosu redmine git clone -b v1.0.2 --depth 1 https://github.com/farend/redmine_theme_farend_bleuclair.git themes/bleuclair \
     && gosu redmine git clone -b 1.5 --depth 1 https://github.com/farend/redmine_theme_farend_basic.git themes/farend_basic \
-    && gosu redmine git clone -b v1.2.1 --depth 1 https://github.com/makotokw/redmine-theme-gitmike.git themes/gitmike \
     \
 # Install gems
     && gosu redmine bundle config set without development test \
