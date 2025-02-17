@@ -1,4 +1,4 @@
-FROM sameersbn/redmine:6.0.1-1
+FROM sameersbn/redmine:6.0.3
 
 ENV SESSION_KEY_SUFFIX=""
 
