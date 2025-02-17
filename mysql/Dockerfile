@@ -3,7 +3,7 @@ FROM ubuntu:noble-20241015
 LABEL maintainer="jumborin"
 
 ENV MYSQL_USER=mysql \
-    MYSQL_VERSION=8.0.40 \
+    MYSQL_VERSION=8.0.41 \
     MYSQL_DATA_DIR=/var/lib/mysql \
     MYSQL_RUN_DIR=/run/mysqld \
     MYSQL_LOG_DIR=/var/log/mysql \
