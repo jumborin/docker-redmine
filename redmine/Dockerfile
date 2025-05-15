@@ -85,5 +85,4 @@ RUN set -ux \
 # Set SESSION_KEY_SUFFIX
 RUN set -ux \
     \
-    #&& sed -i -r "s/(:filter_html => true)/#\1/" lib/redmine/wiki_formatting/markdown/formatter.rb \
     && sed -i -r "s/(:key => '_redmine_session')/\1 + ENV['SESSION_KEY_SUFFIX']/" config/application.rb
