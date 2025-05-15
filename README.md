@@ -1,23 +1,23 @@
 # docker-redmine for Windows
 docker-compose settings for docker-redmine
 
-## 利用方法
+## Instruction
     $ git clone https://github.com/jumborin/docker-redmine.git
     $ cd docker-redmine
     $ cp .env.example .env
     $ docker-compose build
     $ docker-compose up -d
 
-## 構成
+## System Configuration
 * Redmine Container
   * Base OS：Debian GNU/Linux 12 (bookworm)
-  * Redmine：6.0.1
+  * Redmine：6.0.5
   * MySQL：8.0.39
 * MySQL Container
   * Base OS：Ubuntu 24.04 LTS
-  * MySQL：8.0.40
+  * MySQL：8.0.41
   
-## 参考サイト
+## Reference
 * sameersbn/docker-redmine(github)
   https://github.com/sameersbn/docker-redmine
 * sameersbn/docker-redmine(dockerhub)
@@ -31,6 +31,6 @@ docker-compose settings for docker-redmine
 * MySQL Download Site
   https://dev.mysql.com/downloads/mysql/
 
-## 参考サイト(Windows用)
+## Reference(For Windows)
 * standard_init_linux.go:211: exec user process caused "no such file or directory" の直し方
   https://qiita.com/kabik/items/5591f62c0ef6ddef5db2
