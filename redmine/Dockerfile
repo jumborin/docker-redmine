@@ -8,12 +8,34 @@ RUN set -ux \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         gosu \
-        gzip \
+        #gzip \
         #make \
         #unzip \
+    # Uninstall MariaDB
     && apt-get remove -y \
         mariadb-client-core \
         mariadb-client \
+    # For Xapian
+    && apt-get install -y --no-install-recommends \
+        xapian-omega \
+        libxapian-dev \
+        poppler-utils \
+        antiword \
+        unzip \
+        catdoc \
+        libwpd-tools \
+        libwps-tools \
+        gzip \
+        unrtf \
+        catdvi \
+        djview \
+        djview3 \
+        uuid \
+        uuid-dev \
+        xz-utils \
+        libemail-outlook-message-perl \
+        tesseract-ocr \
+    # clean
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,9 +66,10 @@ RUN set -ux \
     && gosu redmine git config --global http.sslverify false \
 # Install plugins
     #&& gosu redmine git clone -b 0.3.5 --depth 1 https://github.com/agileware-jp/redmine_banner.git plugins/redmine_banner \
-    #&& gosu redmine git clone -b v1.1.1 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
+    #&& gosu redmine git clone -b v1.1.2 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
     #&& gosu redmine git clone -b 1.0.1 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions \
     #&& gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize \
+    #&& gosu redmine git clone -b v4.0.2 --depth 1 https://github.com/xelkano/redmine_xapian.git plugins/redmine_xapian \
     #&& gosu redmine git clone -b v0.4.1 --depth 1 https://github.com/redmica/redmica_ui_extension.git plugins/redmica_ui_extension \
     \
 # Install themes
