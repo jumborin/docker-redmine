@@ -1,9 +1,9 @@
-FROM ubuntu:noble-20250127
+FROM ubuntu:noble-20250415.1
 
 LABEL maintainer="jumborin"
 
 ENV MYSQL_USER=mysql \
-    MYSQL_VERSION=8.0.41 \
+    MYSQL_VERSION=8.0.42 \
     MYSQL_DATA_DIR=/var/lib/mysql \
     MYSQL_RUN_DIR=/run/mysqld \
     MYSQL_LOG_DIR=/var/log/mysql \

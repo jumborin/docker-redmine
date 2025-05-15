@@ -12,7 +12,7 @@ docker-compose settings for docker-redmine
 * Redmine Container
   * Base OS：Debian GNU/Linux 12 (bookworm)
   * Redmine：6.0.5
-  * MySQL：8.0.39
+  * MySQL：8.0.42
 * MySQL Container
   * Base OS：Ubuntu 24.04 LTS
   * MySQL：8.0.41
