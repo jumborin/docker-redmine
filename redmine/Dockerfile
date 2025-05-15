@@ -73,7 +73,7 @@ RUN set -ux \
     #&& gosu redmine git clone -b v0.4.1 --depth 1 https://github.com/redmica/redmica_ui_extension.git plugins/redmica_ui_extension \
     \
 # Install themes
-    && gosu redmine git clone -b v1.0.2 --depth 1 https://github.com/farend/redmine_theme_farend_bleuclair.git themes/bleuclair \
+    && gosu redmine git clone -b v1.0.4 --depth 1 https://github.com/farend/redmine_theme_farend_bleuclair.git themes/bleuclair \
     && gosu redmine git clone -b 1.5 --depth 1 https://github.com/farend/redmine_theme_farend_basic.git themes/farend_basic \
     \
 # Install gems
