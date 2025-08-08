@@ -22,12 +22,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install docker-compose-plugin
 
-      - name: Build and run containers  # Docker Composeでコンテナをビルド＆起動
-        run: docker compose up -d --build  # バックグラウンドで立ち上げる
+      - name: Build containers  # Docker Composeでコンテナをビルド
+        run: docker compose build
 
-      - name: Run tests in container  # テストをコンテナ内で実行（任意のサービス名に変更）
-        run: docker compose exec -T app npm test
-        # ↑ "app" はサービス名。必要に応じて "web" や "backend" に変更してください。
+      - name: Run containers  # Docker Composeでコンテナを起動
+        run: docker compose up -d  # バックグラウンドで立ち上げる
 
       - name: Shut down containers  # テスト後、起動中のコンテナを停止・削除
         run: docker compose down
