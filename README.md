@@ -7,8 +7,8 @@ docker-compose settings for docker-redmine
     $ git clone https://github.com/jumborin/docker-redmine.git
     $ cd docker-redmine
     $ cp .env.example .env
-    $ docker-compose build
-    $ docker-compose up -d
+    $ docker compose build
+    $ docker compose up -d
 
 ## System Configuration
 * Redmine Container
