@@ -1,0 +1,33 @@
+name: Docker Compose CI  # ワークフロー名
+
+on:
+  push:
+    branches: [ main ]  # mainブランチへのpushで実行
+  pull_request:
+    branches: [ main ]  # mainブランチへのPR作成・更新時にも実行
+
+jobs:
+  docker-ci:
+    runs-on: ubuntu-latest  # GitHubが用意するUbuntu仮想環境でジョブを実行
+
+    steps:
+      - name: Checkout repository  # リポジトリのソースコードを取得
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx  # Docker Buildxをセットアップ（ビルドの拡張機能）
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Docker Compose  # Docker Compose v2を使うための準備
+        run: |
+          sudo apt-get update
+          sudo apt-get install docker-compose-plugin
+
+      - name: Build and run containers  # Docker Composeでコンテナをビルド＆起動
+        run: docker compose up -d --build  # バックグラウンドで立ち上げる
+
+      - name: Run tests in container  # テストをコンテナ内で実行（任意のサービス名に変更）
+        run: docker compose exec -T app npm test
+        # ↑ "app" はサービス名。必要に応じて "web" や "backend" に変更してください。
+
+      - name: Shut down containers  # テスト後、起動中のコンテナを停止・削除
+        run: docker compose down
