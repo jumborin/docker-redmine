@@ -20,7 +20,7 @@ jobs:
       - name: Set up Docker Compose  # Docker Compose v2を使うための準備
         run: |
           sudo apt-get update
-          sudo apt-get install docker-compose-plugin
+          sudo apt-get install docker-engine
 
       - name: Build containers  # Docker Composeでコンテナをビルド
         run: docker compose build
