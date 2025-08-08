@@ -1,3 +1,5 @@
+[![CI](https://github.com/jumborin/docker-redmine/actions/workflows/ci.yml/badge.svg)](https://github.com/jumborin/docker-redmine/actions/workflows/ci.yml)
+
 # docker-redmine for Windows
 docker-compose settings for docker-redmine
 
