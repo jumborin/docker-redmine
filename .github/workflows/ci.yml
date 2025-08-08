@@ -2,9 +2,9 @@ name: Docker Compose CI  # ワークフロー名
 
 on:
   push:
-    branches: [ main, dev2 ]  # mainとdev2ブランチへのpushで実行
+    branches: [ main, dev2 ]  # 各ブランチへのpushで実行
   pull_request:
-    branches: [ main, dev2 ]  # mainとdev2ブランチへのPR作成・更新時にも実行
+    branches: [ main ]  # mainブランチへのPR作成・更新時にも実行
 
 jobs:
   docker-ci:
@@ -27,10 +27,12 @@ jobs:
         run: sleep 30
 
       - name: Check containers  # コンテナの状態確認
-        run: |
+        run: 
           docker compose ps
           docker exec docker-redmine-redmine-1 mysql -V
+          docker exec docker-redmine-redmine-1 cat /etc/os-release
           docker exec docker-redmine-mysql-1 mysql -V
+          docker exec docker-redmine-mysql-1 cat /etc/os-release
 
       - name: Shut down containers  # コンテナを停止・削除
         run: docker compose down
