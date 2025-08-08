@@ -27,7 +27,7 @@ jobs:
         run: sleep 30
 
       - name: Check containers  # コンテナの状態確認
-        run: 
+        run: |
           docker compose ps
           docker exec docker-redmine-redmine-1 mysql -V
           docker exec docker-redmine-redmine-1 cat /etc/os-release
