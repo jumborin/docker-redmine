@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20250415.1
+FROM ubuntu:noble-20250714
 
 LABEL maintainer="jumborin"
 
