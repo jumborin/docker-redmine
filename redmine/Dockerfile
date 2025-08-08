@@ -66,15 +66,15 @@ RUN set -ux \
     && gosu redmine git config --global http.sslverify false \
 # Install plugins
     #&& gosu redmine git clone -b 0.3.5 --depth 1 https://github.com/agileware-jp/redmine_banner.git plugins/redmine_banner \
-    #&& gosu redmine git clone -b v1.1.2 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
-    #&& gosu redmine git clone -b 1.0.2 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions \
-    #&& gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize \
-    #&& gosu redmine git clone -b v4.0.2 --depth 1 https://github.com/xelkano/redmine_xapian.git plugins/redmine_xapian \
-    #&& gosu redmine git clone -b v0.4.1 --depth 1 https://github.com/redmica/redmica_ui_extension.git plugins/redmica_ui_extension \
+    && gosu redmine git clone -b v1.1.3 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel \
+    && gosu redmine git clone -b 1.0.2 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions \
+    && gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize \
+    && gosu redmine git clone -b v4.0.3 --depth 1 https://github.com/xelkano/redmine_xapian.git plugins/redmine_xapian \
+    && gosu redmine git clone -b v0.4.2 --depth 1 https://github.com/redmica/redmica_ui_extension.git plugins/redmica_ui_extension \
     \
 # Install themes
-    && gosu redmine git clone -b v1.0.4 --depth 1 https://github.com/farend/redmine_theme_farend_bleuclair.git themes/bleuclair \
-    && gosu redmine git clone -b 1.5 --depth 1 https://github.com/farend/redmine_theme_farend_basic.git themes/farend_basic \
+    && gosu redmine git clone -b v1.1.0 --depth 1 https://github.com/farend/redmine_theme_farend_bleuclair.git themes/bleuclair \
+    && gosu redmine git clone -b 1.6 --depth 1 https://github.com/farend/redmine_theme_farend_basic.git themes/farend_basic \
     \
 # Install gems
     && gosu redmine bundle config set without development test \
