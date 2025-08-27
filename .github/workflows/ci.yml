@@ -1,0 +1,98 @@
+name: Docker Compose CI  # ワークフロー名
+
+on:
+  push: # 全ブランチへのpushで実行
+  pull_request:
+    branches: [ main ]  # mainブランチへのPR作成・更新時にも実行
+
+jobs:
+  docker-ci:
+    runs-on: ubuntu-latest  # GitHubが用意するUbuntu仮想環境でジョブを実行
+
+    steps:
+      - name: Checkout repository  # リポジトリのソースコードを取得
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx  # Docker Buildxをセットアップ（ビルドの拡張機能）
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build containers  # Docker Composeでコンテナをビルド
+        run: docker compose build --no-cache
+
+      - name: Run containers  # Docker Composeでコンテナを起動
+        run: |
+          docker compose up -d
+          docker compose ps
+
+      - name: Wait for containers  # コンテナの起動を待機
+        run: |
+          echo "Waiting for MySQL container..."
+          MYSQL_TIMEOUT=120
+          MYSQL_COUNT=0
+          until docker exec docker-redmine-mysql-1 mysqladmin ping -h localhost --silent; do
+            sleep 5
+            MYSQL_COUNT=$((MYSQL_COUNT + 5))
+            if [ $MYSQL_COUNT -ge $MYSQL_TIMEOUT ]; then
+              echo "MySQL startup timeout after ${MYSQL_TIMEOUT} seconds"
+              docker ps
+              docker logs docker-redmine-mysql-1
+              exit 1
+            fi
+          done
+          echo "MySQL is ready!"
+          
+          echo "Waiting for Redmine container..."
+          REDMINE_TIMEOUT=600
+          REDMINE_COUNT=0
+          until docker exec docker-redmine-redmine-1 curl -fsI --noproxy localhost http://localhost -o /dev/null; do
+            sleep 5
+            REDMINE_COUNT=$((REDMINE_COUNT + 5))
+            if [ $REDMINE_COUNT -ge $REDMINE_TIMEOUT ]; then
+              echo "Redmine startup timeout after ${REDMINE_TIMEOUT} seconds"
+              docker ps
+              docker logs docker-redmine-redmine-1
+              exit 1
+            fi
+          done
+          echo "Redmine is ready!"
+          docker compose ps
+
+      - name: Install Plugins  # プラグインのインストール
+        run: |
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v1.1.3 --depth 1 https://github.com/redmica/redmine_issues_panel.git ../data/plugins/redmine_issues_panel
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b 1.0.2 --depth 1 https://github.com/haru/redmine_wiki_extensions.git ../data/plugins/redmine_wiki_extensions
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git ../data/plugins/view_customize
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v4.0.3 --depth 1 https://github.com/xelkano/redmine_xapian.git ../data/plugins/redmine_xapian
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v1.1.3 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b 1.0.2 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v4.0.3 --depth 1 https://github.com/xelkano/redmine_xapian.git plugins/redmine_xapian
+          docker exec docker-redmine-redmine-1 gosu redmine bundle config set --local without development test
+          docker exec docker-redmine-redmine-1 gosu redmine bundle install --local --no-cache
+          docker exec docker-redmine-redmine-1 gosu redmine bundle exec rake redmine:plugins:migrate RAILS_ENV=production
+          docker exec docker-redmine-redmine-1 gosu redmine bundle exec rake assets:precompile RAILS_ENV=production
+          docker exec docker-redmine-redmine-1 ruby /home/redmine/redmine/plugins/redmine_xapian/extra/xapian_indexer.rb -v
+          docker exec docker-redmine-redmine-1 supervisorctl restart puma
+          sleep 30
+
+      - name: Check redmine containers  # Redmineコンテナの内容確認
+        run: |
+          docker exec docker-redmine-redmine-1 cat /etc/os-release
+          docker exec docker-redmine-redmine-1 mysql -V
+          docker exec docker-redmine-redmine-1 nginx -v
+          docker exec docker-redmine-redmine-1 ruby /home/redmine/redmine/bin/about
+          tree volumes/redmine_data/tmp/bundle/ruby -L 3
+          ls -l volumes/redmine_data/tmp/bundle/ruby/3.3.0/cache/
+          ls -l volumes/redmine_data/tmp/bundle/ruby/3.3.0/gems/
+
+      - name: Check mysql containers  # MySQLコンテナの内容確認
+        run: |
+          docker exec docker-redmine-mysql-1 mysql -V
+          docker exec docker-redmine-mysql-1 cat /etc/os-release
+          docker exec docker-redmine-mysql-1 mysql -e "SHOW VARIABLES;"
+
+      - name: Shut down containers  # コンテナを停止・削除
+        run: |
+          docker compose ps
+          docker compose down
+          docker compose ps
