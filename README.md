@@ -39,7 +39,6 @@ docker-compose settings for docker-redmine
 * Redmine.JPリリース履歴
   https://redmine.jp/releases/
 
-
 ## Reference(For Windows)
 * standard_init_linux.go:211: exec user process caused "no such file or directory" の直し方
   https://qiita.com/kabik/items/5591f62c0ef6ddef5db2
