@@ -100,3 +100,7 @@ RUN set -ux \
 RUN set -ux \
     \
     && sed -i -r "s/(:key => '_redmine_session')/\1 + ENV['SESSION_KEY_SUFFIX']/" config/application.rb
+
+# Prevent plugin deletion by removing --delete from rsync
+RUN set -ux \
+    && sed -i 's/rsync -avq --delete/rsync -avq/' /sbin/entrypoint.sh
