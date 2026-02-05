@@ -48,9 +48,9 @@ COPY tmp_mysql_installer/*.deb /tmp/
 RUN set -ux \
     #&& dpkg-preconfigure /tmp/mysql-community-server_*.deb \
     && dpkg -i /tmp/mysql-common_*.deb \
-    #&& dpkg -i /tmp/mysql-community-client-plugins_*.deb \
+    && dpkg -i /tmp/mysql-community-client-plugins_*.deb \
     && dpkg -i /tmp/mysql-community-client-core_*.deb \
-    #&& dpkg -i /tmp/mysql-community-client_*.deb \
+    && dpkg -i /tmp/mysql-community-client_*.deb \
     #&& dpkg -i /tmp/mysql-client_*.deb \
     && apt-get -f install
 
