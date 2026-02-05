@@ -91,6 +91,48 @@ jobs:
           docker exec docker-redmine-mysql-1 cat /etc/os-release
           docker exec docker-redmine-mysql-1 mysql -e "SHOW VARIABLES;"
 
+      - name: Setup Node.js for Playwright  # Playwright用のNode.js環境をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright  # Playwrightをインストール
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install chromium
+
+      - name: Take screenshot  # Redmineアプリのスクリーンショットを取得
+        run: |
+          cat > screenshot.js << 'EOF'
+          const { chromium } = require('playwright');
+          
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            
+            try {
+              await page.goto('http://localhost:3000', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'redmine-screenshot.png', fullPage: true });
+              console.log('Screenshot saved as redmine-screenshot.png');
+            } catch (error) {
+              console.error('Error taking screenshot:', error);
+              process.exit(1);
+            } finally {
+              await browser.close();
+            }
+          })();
+          EOF
+          node screenshot.js
+
+      - name: Upload screenshot  # スクリーンショットをアーティファクトとしてアップロード
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: redmine-screenshot
+          path: redmine-screenshot.png
+          retention-days: 30
+
       - name: Shut down containers  # コンテナを停止・削除
         run: |
           docker compose ps
