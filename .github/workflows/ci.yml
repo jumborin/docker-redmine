@@ -118,13 +118,16 @@ jobs:
               
               await page.fill('#username', 'admin');
               await page.fill('#password', 'admin');
-              await page.click('input[type="submit"]');
-              await page.waitForURL('http://localhost/', { waitUntil: 'networkidle' });
+              await Promise.all([
+                page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 }),
+                page.click('input[type="submit"]')
+              ]);
               
               await page.screenshot({ path: 'redmine-home.png', fullPage: true });
               console.log('Home page screenshot saved');
             } catch (error) {
               console.error('Error taking screenshot:', error);
+              await page.screenshot({ path: 'redmine-error.png', fullPage: true });
               process.exit(1);
             } finally {
               await browser.close();
@@ -141,6 +144,7 @@ jobs:
           path: |
             redmine-login.png
             redmine-home.png
+            redmine-error.png
           retention-days: 30
 
       - name: Shut down containers  # コンテナを停止・削除
