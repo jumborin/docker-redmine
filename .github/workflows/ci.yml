@@ -112,10 +112,12 @@ jobs:
             const page = await browser.newPage();
             
             try {
+              # Redmineのログインページのスクリーンショットを取得
               await page.goto('http://localhost/login', { waitUntil: 'networkidle' });
               await page.screenshot({ path: 'redmine-login.png', fullPage: true });
               console.log('Login page screenshot saved');
               
+              # ログインし、ホーム画面のスクリーンショットを取得
               await page.fill('#username', 'admin');
               await page.fill('#password', 'admin');
               await Promise.all([
@@ -123,9 +125,11 @@ jobs:
                 page.click('input[type="submit"]')
               ]);
               
+              # 初回ログイン時のパスワード変更画面のスクリーンショットを取得
               await page.screenshot({ path: 'redmine-password-page.png', fullPage: true });
               console.log('Password change page screenshot saved');
               
+              # パスワード変更画面でパスワードを変更し、個人設定画面のスクリーンショットを取得
               await page.fill('#password', 'admin');
               await page.fill('#new_password', 'newpassword123');
               await page.fill('#new_password_confirmation', 'newpassword123');
@@ -133,13 +137,18 @@ jobs:
                 page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 }),
                 page.click('input[type="submit"]')
               ]);
-              
               await page.screenshot({ path: 'redmine-password-changed.png', fullPage: true });
               console.log('Password changed screenshot saved');
 
+              # プラグイン一覧ページのスクリーンショットを取得
               await page.goto('http://localhost/admin/plugins', { waitUntil: 'networkidle' });
               await page.screenshot({ path: 'redmine-plugins.png', fullPage: true });
               console.log('Plugins page screenshot saved');
+
+              # 情報ページのスクリーンショットを取得
+              await page.goto('http://localhost/admin/info', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'redmine-info.png', fullPage: true });
+              console.log('Info page screenshot saved');
             } catch (error) {
               console.error('Error taking screenshot:', error);
               await page.screenshot({ path: 'redmine-error.png', fullPage: true });
@@ -162,6 +171,7 @@ jobs:
             redmine-password-page.png
             redmine-password-changed.png
             redmine-plugins.png
+            redmine-info.png
             redmine-error.png
           retention-days: 30
 
