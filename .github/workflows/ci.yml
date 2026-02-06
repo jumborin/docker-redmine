@@ -112,9 +112,17 @@ jobs:
             const page = await browser.newPage();
             
             try {
-              await page.goto('http://localhost', { waitUntil: 'networkidle' });
-              await page.screenshot({ path: 'redmine-screenshot.png', fullPage: true });
-              console.log('Screenshot saved as redmine-screenshot.png');
+              await page.goto('http://localhost/login', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'redmine-login.png', fullPage: true });
+              console.log('Login page screenshot saved');
+              
+              await page.fill('#username', 'admin');
+              await page.fill('#password', 'admin');
+              await page.click('input[type="submit"]');
+              await page.waitForURL('http://localhost/', { waitUntil: 'networkidle' });
+              
+              await page.screenshot({ path: 'redmine-home.png', fullPage: true });
+              console.log('Home page screenshot saved');
             } catch (error) {
               console.error('Error taking screenshot:', error);
               process.exit(1);
@@ -129,8 +137,10 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: redmine-screenshot
-          path: redmine-screenshot.png
+          name: redmine-screenshots
+          path: |
+            redmine-login.png
+            redmine-home.png
           retention-days: 30
 
       - name: Shut down containers  # コンテナを停止・削除
