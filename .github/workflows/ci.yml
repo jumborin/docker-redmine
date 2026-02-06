@@ -123,8 +123,23 @@ jobs:
                 page.click('input[type="submit"]')
               ]);
               
-              await page.screenshot({ path: 'redmine-home.png', fullPage: true });
-              console.log('Home page screenshot saved');
+              await page.screenshot({ path: 'redmine-password-page.png', fullPage: true });
+              console.log('Password change page screenshot saved');
+              
+              await page.fill('#password', 'admin');
+              await page.fill('#new_password', 'newpassword123');
+              await page.fill('#new_password_confirmation', 'newpassword123');
+              await Promise.all([
+                page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 }),
+                page.click('input[type="submit"]')
+              ]);
+              
+              await page.screenshot({ path: 'redmine-password-changed.png', fullPage: true });
+              console.log('Password changed screenshot saved');
+
+              await page.goto('http://localhost/admin/plugins', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'redmine-plugins.png', fullPage: true });
+              console.log('Plugins page screenshot saved');
             } catch (error) {
               console.error('Error taking screenshot:', error);
               await page.screenshot({ path: 'redmine-error.png', fullPage: true });
@@ -144,6 +159,9 @@ jobs:
           path: |
             redmine-login.png
             redmine-home.png
+            redmine-password-page.png
+            redmine-password-changed.png
+            redmine-plugins.png
             redmine-error.png
           retention-days: 30
 
