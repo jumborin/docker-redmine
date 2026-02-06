@@ -91,6 +91,80 @@ jobs:
           docker exec docker-redmine-mysql-1 cat /etc/os-release
           docker exec docker-redmine-mysql-1 mysql -e "SHOW VARIABLES;"
 
+      - name: Setup Node.js for Playwright  # Playwright用のNode.js環境をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright  # Playwrightをインストール
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install chromium
+
+      - name: Take screenshot  # Redmineアプリのスクリーンショットを取得
+        run: |
+          cat > screenshot.js << 'EOF'
+          const { chromium } = require('playwright');
+          
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            
+            try {
+              await page.goto('http://localhost/login', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'redmine-login.png', fullPage: true });
+              console.log('Login page screenshot saved');
+              
+              await page.fill('#username', 'admin');
+              await page.fill('#password', 'admin');
+              await Promise.all([
+                page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 }),
+                page.click('input[type="submit"]')
+              ]);
+              
+              await page.screenshot({ path: 'redmine-password-page.png', fullPage: true });
+              console.log('Password change page screenshot saved');
+              
+              await page.fill('#password', 'admin');
+              await page.fill('#new_password', 'newpassword123');
+              await page.fill('#new_password_confirmation', 'newpassword123');
+              await Promise.all([
+                page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 }),
+                page.click('input[type="submit"]')
+              ]);
+              
+              await page.screenshot({ path: 'redmine-password-changed.png', fullPage: true });
+              console.log('Password changed screenshot saved');
+
+              await page.goto('http://localhost/admin/plugins', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'redmine-plugins.png', fullPage: true });
+              console.log('Plugins page screenshot saved');
+            } catch (error) {
+              console.error('Error taking screenshot:', error);
+              await page.screenshot({ path: 'redmine-error.png', fullPage: true });
+              process.exit(1);
+            } finally {
+              await browser.close();
+            }
+          })();
+          EOF
+          node screenshot.js
+
+      - name: Upload screenshot  # スクリーンショットをアーティファクトとしてアップロード
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: redmine-screenshots
+          path: |
+            redmine-login.png
+            redmine-home.png
+            redmine-password-page.png
+            redmine-password-changed.png
+            redmine-plugins.png
+            redmine-error.png
+          retention-days: 30
+
       - name: Shut down containers  # コンテナを停止・削除
         run: |
           docker compose ps

@@ -1,4 +1,4 @@
-FROM sameersbn/redmine:6.0.6
+FROM sameersbn/redmine:6.0.8
 
 ENV SESSION_KEY_SUFFIX=""
 
@@ -46,12 +46,10 @@ COPY tmp_mysql_installer/*.deb /tmp/
 
 # install MySQL
 RUN set -ux \
-    && dpkg-preconfigure /tmp/mysql-community-server_*.deb \
     && dpkg -i /tmp/mysql-common_*.deb \
     && dpkg -i /tmp/mysql-community-client-plugins_*.deb \
     && dpkg -i /tmp/mysql-community-client-core_*.deb \
     && dpkg -i /tmp/mysql-community-client_*.deb \
-    && dpkg -i /tmp/mysql-client_*.deb \
     && apt-get -f install
 
 # Copy gems
@@ -100,3 +98,7 @@ RUN set -ux \
 RUN set -ux \
     \
     && sed -i -r "s/(:key => '_redmine_session')/\1 + ENV['SESSION_KEY_SUFFIX']/" config/application.rb
+
+# Prevent plugin deletion by removing --delete from rsync
+RUN set -ux \
+    && sed -i 's/rsync -avq --delete/rsync -avq/' /sbin/entrypoint.sh
