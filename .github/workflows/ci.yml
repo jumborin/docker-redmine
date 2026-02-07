@@ -59,14 +59,14 @@ jobs:
 
       - name: Install Plugins  # プラグインのインストール
         run: |
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v1.1.3 --depth 1 https://github.com/redmica/redmine_issues_panel.git ../data/plugins/redmine_issues_panel
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b 1.0.2 --depth 1 https://github.com/haru/redmine_wiki_extensions.git ../data/plugins/redmine_wiki_extensions
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git ../data/plugins/view_customize
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v4.0.3 --depth 1 https://github.com/xelkano/redmine_xapian.git ../data/plugins/redmine_xapian
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v1.1.3 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b 1.0.2 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v3.5.2 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize
-          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v4.0.3 --depth 1 https://github.com/xelkano/redmine_xapian.git plugins/redmine_xapian
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v1.2.0 --depth 1 https://github.com/redmica/redmine_issues_panel.git ../data/plugins/redmine_issues_panel
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b 1.2.0 --depth 1 https://github.com/haru/redmine_wiki_extensions.git ../data/plugins/redmine_wiki_extensions
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v3.5.4 --depth 1 https://github.com/onozaty/redmine-view-customize.git ../data/plugins/view_customize
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v4.0.4 --depth 1 https://github.com/xelkano/redmine_xapian.git ../data/plugins/redmine_xapian
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v1.2.0 --depth 1 https://github.com/redmica/redmine_issues_panel.git plugins/redmine_issues_panel
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b 1.2.0 --depth 1 https://github.com/haru/redmine_wiki_extensions.git plugins/redmine_wiki_extensions
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v3.5.4 --depth 1 https://github.com/onozaty/redmine-view-customize.git plugins/view_customize
+          docker exec docker-redmine-redmine-1 gosu redmine git clone -b v4.0.4 --depth 1 https://github.com/xelkano/redmine_xapian.git plugins/redmine_xapian
           docker exec docker-redmine-redmine-1 gosu redmine bundle config set --local without development test
           docker exec docker-redmine-redmine-1 gosu redmine bundle install --local --no-cache
           docker exec docker-redmine-redmine-1 gosu redmine bundle exec rake redmine:plugins:migrate RAILS_ENV=production
@@ -104,6 +104,7 @@ jobs:
 
       - name: Take screenshot  # Redmineアプリのスクリーンショットを取得
         run: |
+          mkdir -p screenshots
           cat > screenshot.js << 'EOF'
           const { chromium } = require('playwright');
           
@@ -112,10 +113,12 @@ jobs:
             const page = await browser.newPage();
             
             try {
+              // Redmineのログインページにアクセスし、スクリーンショットを取得
               await page.goto('http://localhost/login', { waitUntil: 'networkidle' });
-              await page.screenshot({ path: 'redmine-login.png', fullPage: true });
+              await page.screenshot({ path: 'screenshots/redmine-login.png', fullPage: true });
               console.log('Login page screenshot saved');
               
+              // ログイン画面でログイン情報を入力してログイン
               await page.fill('#username', 'admin');
               await page.fill('#password', 'admin');
               await Promise.all([
@@ -123,9 +126,11 @@ jobs:
                 page.click('input[type="submit"]')
               ]);
               
-              await page.screenshot({ path: 'redmine-password-page.png', fullPage: true });
+              // 初回ログイン時のパスワード変更画面のスクリーンショットを取得
+              await page.screenshot({ path: 'screenshots/redmine-password-page.png', fullPage: true });
               console.log('Password change page screenshot saved');
               
+              // パスワード変更画面でパスワードを変更
               await page.fill('#password', 'admin');
               await page.fill('#new_password', 'newpassword123');
               await page.fill('#new_password_confirmation', 'newpassword123');
@@ -133,16 +138,29 @@ jobs:
                 page.waitForNavigation({ waitUntil: 'networkidle', timeout: 60000 }),
                 page.click('input[type="submit"]')
               ]);
-              
-              await page.screenshot({ path: 'redmine-password-changed.png', fullPage: true });
+
+              // パスワード変更後の個人設定画面のスクリーンショットを取得
+              await page.screenshot({ path: 'screenshots/redmine-password-changed.png', fullPage: true });
               console.log('Password changed screenshot saved');
 
+              // プラグイン一覧ページにアクセスし、スクリーンショットを取得
               await page.goto('http://localhost/admin/plugins', { waitUntil: 'networkidle' });
-              await page.screenshot({ path: 'redmine-plugins.png', fullPage: true });
+              await page.screenshot({ path: 'screenshots/redmine-plugins.png', fullPage: true });
               console.log('Plugins page screenshot saved');
+
+              // 情報ページにアクセスし、スクリーンショットを取得
+              await page.goto('http://localhost/admin/info', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'screenshots/redmine-info.png', fullPage: true });
+              console.log('Info page screenshot saved');
+
+              // 詳細検索ページにアクセスし、スクリーンショットを取得
+              await page.goto('http://localhost/search', { waitUntil: 'networkidle' });
+              await page.screenshot({ path: 'screenshots/redmine-search.png', fullPage: true });
+              console.log('Search page screenshot saved');
+
             } catch (error) {
               console.error('Error taking screenshot:', error);
-              await page.screenshot({ path: 'redmine-error.png', fullPage: true });
+              await page.screenshot({ path: 'screenshots/redmine-error.png', fullPage: true });
               process.exit(1);
             } finally {
               await browser.close();
@@ -156,13 +174,7 @@ jobs:
         if: always()
         with:
           name: redmine-screenshots
-          path: |
-            redmine-login.png
-            redmine-home.png
-            redmine-password-page.png
-            redmine-password-changed.png
-            redmine-plugins.png
-            redmine-error.png
+          path: screenshots/
           retention-days: 30
 
       - name: Shut down containers  # コンテナを停止・削除
