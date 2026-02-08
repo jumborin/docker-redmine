@@ -89,7 +89,7 @@ jobs:
         run: |
           docker exec docker-redmine-mysql-1 mysql -V
           docker exec docker-redmine-mysql-1 cat /etc/os-release
-          docker exec docker-redmine-mysql-1 mysql -e "SHOW VARIABLES;"
+          docker exec docker-redmine-mysql-1 mysql -u${DB_USER:-redmine} -p${DB_PASS:-password} -e "SHOW VARIABLES;"
 
       - name: Setup Node.js for Playwright  # Playwright用のNode.js環境をセットアップ
         uses: actions/setup-node@v4
