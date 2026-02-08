@@ -11,10 +11,11 @@ services:
         - no_proxy=${NO_PROXY:-}
     restart: always
     environment:
-      - DB_USER=${DB_USER:-redmine}
-      - DB_PASS=${DB_PASS:-password}
-      - DB_NAME=${DB_NAME:-redmine_production}
-    command: --transaction-isolation=READ-COMMITTED
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=${DB_NAME:-redmine_production}
+      - MYSQL_USER=${DB_USER:-redmine}
+      - MYSQL_PASSWORD=${DB_PASS:-password}
+    command: --transaction-isolation=READ-COMMITTED --lower-case-table-names=2
     volumes:
       - ./volumes/mysql:/var/lib/mysql
     healthcheck:

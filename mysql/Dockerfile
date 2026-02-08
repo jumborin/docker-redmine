@@ -1,34 +1,16 @@
-FROM ubuntu:noble-20260113
+FROM mysql:8.0.45
 
 LABEL maintainer="jumborin"
 
-ENV MYSQL_USER=mysql \
-    MYSQL_VERSION=8.0.45 \
-    MYSQL_DATA_DIR=/var/lib/mysql \
-    MYSQL_RUN_DIR=/run/mysqld \
-    MYSQL_LOG_DIR=/var/log/mysql \
-    TZ=Asia/Tokyo
+ENV TZ=Asia/Tokyo
 
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      mysql-server=${MYSQL_VERSION}* \
-      tzdata \
-    && rm -rf ${MYSQL_DATA_DIR} \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && dpkg-reconfigure -f noninteractive tzdata
-    
-COPY entrypoint.sh /sbin/entrypoint.sh
+RUN ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime
 
-RUN chmod 755 /sbin/entrypoint.sh
-
-EXPOSE 3306/tcp
-
-ENTRYPOINT ["/sbin/entrypoint.sh"]
-
-RUN set -ux \
-    \
-    && echo "default-character-set = utf8mb4" >> /etc/mysql/conf.d/mysql.cnf \
-    && echo "character-set-server = utf8mb4" >> /etc/mysql/mysql.conf.d/mysqld.cnf
-
-CMD ["/usr/bin/mysqld_safe"]
+RUN echo "[mysqld]" > /etc/mysql/conf.d/custom.cnf \
+    && echo "character-set-server = utf8mb4" >> /etc/mysql/conf.d/custom.cnf \
+    && echo "collation-server = utf8mb4_unicode_ci" >> /etc/mysql/conf.d/custom.cnf \
+    && echo "skip_name_resolve" >> /etc/mysql/conf.d/custom.cnf \
+    && echo "lower_case_table_names = 2" >> /etc/mysql/conf.d/custom.cnf \
+    && echo "" >> /etc/mysql/conf.d/custom.cnf \
+    && echo "[client]" >> /etc/mysql/conf.d/custom.cnf \
+    && echo "default-character-set = utf8mb4" >> /etc/mysql/conf.d/custom.cnf
