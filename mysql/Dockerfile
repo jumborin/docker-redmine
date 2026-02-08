@@ -14,3 +14,10 @@ RUN echo "[mysqld]" > /etc/mysql/conf.d/custom.cnf \
     && echo "" >> /etc/mysql/conf.d/custom.cnf \
     && echo "[client]" >> /etc/mysql/conf.d/custom.cnf \
     && echo "default-character-set = utf8mb4" >> /etc/mysql/conf.d/custom.cnf
+
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && sed -i 's/\r$//' /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["mysqld"]
