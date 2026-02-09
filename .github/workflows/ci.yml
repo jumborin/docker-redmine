@@ -81,6 +81,10 @@ jobs:
           docker exec docker-redmine-redmine-1 mysql -V
           docker exec docker-redmine-redmine-1 nginx -v
           docker exec docker-redmine-redmine-1 ruby /home/redmine/redmine/bin/about
+          echo "=== Redmine Container Timezone ==="
+          docker exec docker-redmine-redmine-1 date
+          docker exec docker-redmine-redmine-1 cat /etc/localtime | head -c 4
+          echo ""
           tree volumes/redmine_data/tmp/bundle/ruby -L 3
           ls -l volumes/redmine_data/tmp/bundle/ruby/3.3.0/cache/
           ls -l volumes/redmine_data/tmp/bundle/ruby/3.3.0/gems/
@@ -89,7 +93,13 @@ jobs:
         run: |
           docker exec docker-redmine-mysql-1 mysql -V
           docker exec docker-redmine-mysql-1 cat /etc/os-release
-          docker exec docker-redmine-mysql-1 mysql -u${DB_USER:-redmine} -p${DB_PASS:-password} -e "SHOW VARIABLES;"
+          echo "=== MySQL Container Timezone ==="
+          docker exec docker-redmine-mysql-1 date
+          docker exec docker-redmine-mysql-1 mysql -uredmine -ppassword -e "SELECT NOW(), @@system_time_zone, @@time_zone;"
+          echo "=== MySQL Configuration ==="
+          docker exec docker-redmine-mysql-1 mysql -uredmine -ppassword -e "SHOW VARIABLES LIKE 'lower_case_table_names';"
+          docker exec docker-redmine-mysql-1 mysql -uredmine -ppassword -e "SHOW VARIABLES LIKE 'character_set%';"
+          docker exec docker-redmine-mysql-1 mysql -uredmine -ppassword -e "SHOW VARIABLES LIKE 'collation%';"
 
       - name: Setup Node.js for Playwright  # Playwright用のNode.js環境をセットアップ
         uses: actions/setup-node@v4
