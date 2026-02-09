@@ -38,7 +38,12 @@ docker-compose settings for docker-redmine
   https://www.redmine.org/projects/redmine/roadmap
 * Redmine.JPリリース履歴
   https://redmine.jp/releases/
-
+* Oracle Linux リリース日・サポート終了日一覧
+  https://www.oracle.com/jp/a/ocom/docs/elsp-lifetime-069338.pdf
+* Debian LTS サポート期間一覧
+  https://wiki.debian.org/LTS
+  
 ## Reference(For Windows)
 * standard_init_linux.go:211: exec user process caused "no such file or directory" の直し方
   https://qiita.com/kabik/items/5591f62c0ef6ddef5db2
+
