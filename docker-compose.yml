@@ -1,4 +1,32 @@
 services:
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        - HTTP_PROXY=${HTTP_PROXY:-}
+        - http_proxy=${HTTP_PROXY:-}
+        - HTTPS_PROXY=${HTTPS_PROXY:-}
+        - https_proxy=${HTTPS_PROXY:-}
+        - NO_PROXY=${NO_PROXY:-}
+        - no_proxy=${NO_PROXY:-}
+    restart: always
+    depends_on:
+      redmine:
+        condition: service_healthy
+    environment:
+      - NGINX_WORKERS=${NGINX_WORKERS:-1}
+      - NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
+    ports:
+      - "${REDMINE_PORT:-80}:80"
+    volumes:
+      - ./volumes/nginx_logs:/var/log/nginx
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
   mysql:
     build:
       context: ./mysql
@@ -37,6 +65,7 @@ services:
         - https_proxy=${HTTPS_PROXY:-}
         - NO_PROXY=${NO_PROXY:-}
         - no_proxy=${NO_PROXY:-}
+        - DISABLE_NGINX=true
     restart: always
     depends_on:
       mysql:
@@ -68,9 +97,6 @@ services:
 
       - LOGGER_LEVEL=${LOGGER_LEVEL:-info}
 
-      - NGINX_WORKERS=${NGINX_WORKERS:-1}
-      - NGINX_MAX_UPLOAD_SIZE=${NGINX_MAX_UPLOAD_SIZE:-20m}
-
       - PUMA_WORKERS=${PUMA_WORKERS:-2}
 
       - SMTP_ENABLED=false
@@ -91,15 +117,15 @@ services:
       - IMAP_SSL=true
       - IMAP_INTERVAL=30
 
-    ports:
-      - "${REDMINE_PORT:-80}:80"
+    expose:
+      - "3000"
     volumes:
       - ./volumes/redmine_data:/home/redmine/data
       - ./volumes/redmine_logs:/var/log/redmine
     tmpfs:
       - /home/redmine/redmine/file_index
     healthcheck:
-      test: [ "CMD", "curl", "--noproxy", "*", "-fsI", "-o", "/dev/null", "http://localhost" ]
+      test: [ "CMD", "curl", "--noproxy", "*", "-fsI", "-o", "/dev/null", "http://localhost:3000" ]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -11,6 +11,9 @@ docker-compose settings for docker-redmine
     $ docker compose up -d
 
 ## System Configuration
+* Nginx Container
+  * Base OS: Debian GNU/Linux 12 (bookworm)
+  * Nginx: 1.28.2
 * Redmine Container
   * Base OS：Debian GNU/Linux 12 (bookworm)
   * Redmine：6.1.1
