@@ -57,15 +57,16 @@ jobs:
           echo "Redmine is ready!"
           
           echo "Waiting for Nginx container..."
-          NGINX_TIMEOUT=60
+          NGINX_TIMEOUT=300
           NGINX_COUNT=0
-          until docker exec docker-redmine-nginx-1 sh -c "curl -f http://localhost > /dev/null 2>&1"; do
+          until curl -f http://localhost/login > /dev/null 2>&1; do
             sleep 5
             NGINX_COUNT=$((NGINX_COUNT + 5))
             if [ $NGINX_COUNT -ge $NGINX_TIMEOUT ]; then
               echo "Nginx startup timeout after ${NGINX_TIMEOUT} seconds"
               docker ps
               docker logs docker-redmine-nginx-1
+              docker logs docker-redmine-redmine-1 --tail 50
               exit 1
             fi
           done
