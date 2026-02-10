@@ -65,8 +65,12 @@ jobs:
             if [ $NGINX_COUNT -ge $NGINX_TIMEOUT ]; then
               echo "Nginx startup timeout after ${NGINX_TIMEOUT} seconds"
               docker ps
+              echo "=== Nginx Logs ==="
               docker logs docker-redmine-nginx-1
+              echo "=== Redmine Logs (last 50 lines) ==="
               docker logs docker-redmine-redmine-1 --tail 50
+              echo "=== Testing Nginx -> Redmine connection ==="
+              docker exec docker-redmine-nginx-1 curl -v http://redmine:3000 || true
               exit 1
             fi
           done
