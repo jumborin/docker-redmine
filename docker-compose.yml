@@ -21,11 +21,11 @@ services:
     volumes:
       - ./volumes/nginx_logs:/var/log/nginx
     healthcheck:
-      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost" ]
+      test: [ "CMD-SHELL", "curl -f http://localhost/login || exit 1" ]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 30s
+      retries: 3
+      start_period: 10s
 
   mysql:
     build:
@@ -49,11 +49,11 @@ services:
     volumes:
       - ./volumes/mysql:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 30s
-      timeout: 10s
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "--silent" ]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 40s
 
   redmine:
     build:
@@ -125,8 +125,8 @@ services:
     tmpfs:
       - /home/redmine/redmine/file_index
     healthcheck:
-      test: [ "CMD", "curl", "--noproxy", "*", "-fsI", "-o", "/dev/null", "http://localhost:3000" ]
+      test: [ "CMD", "curl", "--noproxy", "*", "-f", "http://localhost:3000/login" ]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 120s

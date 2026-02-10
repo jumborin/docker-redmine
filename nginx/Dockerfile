@@ -5,7 +5,7 @@ LABEL maintainer="jumborin"
 ENV TZ=Asia/Tokyo
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gettext-base \
+    && apt-get install -y --no-install-recommends gettext-base curl \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
