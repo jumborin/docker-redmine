@@ -22,9 +22,9 @@ services:
       - ./volumes/nginx_logs:/var/log/nginx
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost/login || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 60s
+      timeout: 30s
+      retries: 5
       start_period: 10s
 
   mysql:
