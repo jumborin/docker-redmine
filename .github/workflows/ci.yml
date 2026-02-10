@@ -82,7 +82,7 @@ jobs:
           echo "Waiting for Nginx container..."
           NGINX_TIMEOUT=300
           NGINX_COUNT=0
-          until curl -f http://localhost/login > /dev/null 2>&1; do
+          until curl -f http://localhost > /dev/null 2>&1; do
             sleep 5
             NGINX_COUNT=$((NGINX_COUNT + 5))
             if [ $NGINX_COUNT -ge $NGINX_TIMEOUT ]; then
@@ -93,7 +93,7 @@ jobs:
               echo "=== Redmine Logs (last 50 lines) ==="
               docker logs docker-redmine-redmine-1 --tail 50
               echo "=== Testing Nginx -> Redmine connection ==="
-              docker exec docker-redmine-nginx-1 curl -v http://redmine:3000 || true
+              docker exec docker-redmine-nginx-1 curl -v http://localhost || true
               exit 1
             fi
           done
