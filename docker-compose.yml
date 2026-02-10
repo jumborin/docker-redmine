@@ -53,7 +53,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 40s
+      start_period: 60s
 
   redmine:
     build:
@@ -125,8 +125,8 @@ services:
     tmpfs:
       - /home/redmine/redmine/file_index
     healthcheck:
-      test: [ "CMD", "curl", "--noproxy", "*", "-f", "http://localhost:3000/login" ]
-      interval: 30s
-      timeout: 10s
+      test: [ "CMD-SHELL", "pgrep -f puma || exit 1" ]
+      interval: 60s
+      timeout: 15s
       retries: 5
-      start_period: 120s
+      start_period: 300s
