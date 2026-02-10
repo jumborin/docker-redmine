@@ -74,6 +74,8 @@ services:
       - TZ=Asia/Tokyo
       - SESSION_KEY_SUFFIX=${SESSION_KEY_SUFFIX:-}
 
+      - NGINX_ENABLED=false
+
       - REDMINE_HTTPS=false
       - REDMINE_PORT=${REDMINE_PORT:-80}
       - REDMINE_RELATIVE_URL_ROOT=
