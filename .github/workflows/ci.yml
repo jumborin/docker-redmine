@@ -67,13 +67,20 @@ jobs:
               docker ps
               echo "=== Supervisor Status ==="
               docker exec docker-redmine-redmine-1 supervisorctl status
-              echo "=== Puma Logs ==="
-              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stdout.log || true
-              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stderr.log || true
+              echo "=== Checking Puma Log Files ==="
+              docker exec docker-redmine-redmine-1 ls -la /var/log/redmine/ || true
+              echo "=== Puma stdout ==="
+              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stdout.log 2>/dev/null || echo "No stdout log"
+              echo "=== Puma stderr ==="
+              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stderr.log 2>/dev/null || echo "No stderr log"
+              echo "=== Supervisor Puma Logs ==="
+              docker exec docker-redmine-redmine-1 supervisorctl tail puma || true
               echo "=== Redmine Logs (last 100 lines) ==="
               docker logs docker-redmine-redmine-1 --tail 100
-              echo "=== Network Check ==="
-              docker exec docker-redmine-redmine-1 netstat -tlnp || true
+              echo "=== Checking if port 3000 is listening ==="
+              docker exec docker-redmine-redmine-1 sh -c "netstat -tlnp 2>/dev/null || ss -tlnp" || true
+              echo "=== Checking Puma process ==="
+              docker exec docker-redmine-redmine-1 sh -c "ps aux | grep puma" || true
               exit 1
             fi
           done
