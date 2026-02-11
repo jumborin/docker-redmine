@@ -13,78 +13,40 @@ jobs:
       - name: Checkout repository  # リポジトリのソースコードを取得
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx  # Docker Buildxをセットアップ（ビルドの拡張機能）
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
 
-      - name: Build containers  # Docker Composeでコンテナをビルド
-        run: docker compose build --no-cache
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build containers
+        run: |
+          docker compose build --parallel
 
       - name: Run containers  # Docker Composeでコンテナを起動
         run: |
           docker compose up -d
           docker compose ps
 
-      - name: Wait for containers  # コンテナの起動を待機
+      - name: Wait for containers
         run: |
-          echo "Waiting for MySQL container..."
-          MYSQL_TIMEOUT=120
-          MYSQL_COUNT=0
-          until docker exec docker-redmine-mysql-1 mysqladmin ping -h localhost --silent; do
-            sleep 5
-            MYSQL_COUNT=$((MYSQL_COUNT + 5))
-            if [ $MYSQL_COUNT -ge $MYSQL_TIMEOUT ]; then
-              echo "MySQL startup timeout after ${MYSQL_TIMEOUT} seconds"
-              docker ps
-              docker logs docker-redmine-mysql-1
-              exit 1
-            fi
-          done
-          echo "MySQL is ready!"
-          
-          echo "Waiting for Redmine container..."
-          REDMINE_TIMEOUT=600
-          REDMINE_COUNT=0
-          until docker exec docker-redmine-redmine-1 supervisorctl status puma | grep RUNNING > /dev/null; do
-            sleep 5
-            REDMINE_COUNT=$((REDMINE_COUNT + 5))
-            if [ $REDMINE_COUNT -ge $REDMINE_TIMEOUT ]; then
-              echo "Redmine startup timeout after ${REDMINE_TIMEOUT} seconds"
-              docker ps
-              docker logs docker-redmine-redmine-1
-              exit 1
-            fi
-          done
-          echo "Redmine Puma process is running!"
-          
-          echo "Waiting for Redmine to listen on port 8080..."
-          REDMINE_PORT_TIMEOUT=180
-          REDMINE_PORT_COUNT=0
-          until docker exec docker-redmine-redmine-1 curl -f http://localhost:8080 > /dev/null 2>&1; do
-            sleep 5
-            REDMINE_PORT_COUNT=$((REDMINE_PORT_COUNT + 5))
-            if [ $REDMINE_PORT_COUNT -ge $REDMINE_PORT_TIMEOUT ]; then
-              echo "Redmine port 8080 timeout after ${REDMINE_PORT_TIMEOUT} seconds"
-              docker ps
-              docker logs docker-redmine-redmine-1 --tail 100
-              exit 1
-            fi
-          done
-          echo "Redmine is ready!"
-          
-          echo "Waiting for Nginx container..."
-          NGINX_TIMEOUT=120
-          NGINX_COUNT=0
-          until curl -f http://localhost > /dev/null 2>&1; do
-            sleep 5
-            NGINX_COUNT=$((NGINX_COUNT + 5))
-            if [ $NGINX_COUNT -ge $NGINX_TIMEOUT ]; then
-              echo "Nginx startup timeout after ${NGINX_TIMEOUT} seconds"
-              docker ps
-              docker logs docker-redmine-nginx-1
-              exit 1
-            fi
-          done
-          echo "Nginx is ready!"
+          echo "Waiting for services..."
+          timeout 300 bash -c 'until curl -f http://localhost > /dev/null 2>&1; do sleep 2; done' || (
+            echo "Startup timeout"
+            docker compose ps
+            docker compose logs
+            exit 1
+          )
+          echo "All services ready!"
           docker compose ps
 
       - name: Install Plugins  # プラグインのインストール
