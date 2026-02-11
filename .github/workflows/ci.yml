@@ -56,14 +56,14 @@ jobs:
           done
           echo "Redmine Puma process is running!"
           
-          echo "Waiting for Redmine to listen on port 3000..."
+          echo "Waiting for Redmine to listen on port 8080..."
           REDMINE_PORT_TIMEOUT=180
           REDMINE_PORT_COUNT=0
-          until docker exec docker-redmine-redmine-1 curl -f http://localhost:3000 > /dev/null 2>&1; do
+          until docker exec docker-redmine-redmine-1 curl -f http://localhost:8080 > /dev/null 2>&1; do
             sleep 5
             REDMINE_PORT_COUNT=$((REDMINE_PORT_COUNT + 5))
             if [ $REDMINE_PORT_COUNT -ge $REDMINE_PORT_TIMEOUT ]; then
-              echo "Redmine port 3000 timeout after ${REDMINE_PORT_TIMEOUT} seconds"
+              echo "Redmine port 8080 timeout after ${REDMINE_PORT_TIMEOUT} seconds"
               docker ps
               echo "=== Supervisor Status ==="
               docker exec docker-redmine-redmine-1 supervisorctl status || true
