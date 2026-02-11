@@ -66,21 +66,21 @@ jobs:
               echo "Redmine port 3000 timeout after ${REDMINE_PORT_TIMEOUT} seconds"
               docker ps
               echo "=== Supervisor Status ==="
-              docker exec docker-redmine-redmine-1 supervisorctl status
+              docker exec docker-redmine-redmine-1 supervisorctl status || true
               echo "=== Checking Puma Log Files ==="
-              docker exec docker-redmine-redmine-1 ls -la /var/log/redmine/ || true
+              docker exec docker-redmine-redmine-1 ls -la /var/log/redmine/ 2>&1 || true
               echo "=== Puma stdout ==="
-              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stdout.log 2>/dev/null || echo "No stdout log"
+              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stdout.log 2>&1 || echo "No stdout log"
               echo "=== Puma stderr ==="
-              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stderr.log 2>/dev/null || echo "No stderr log"
+              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stderr.log 2>&1 || echo "No stderr log"
               echo "=== Supervisor Puma Logs ==="
-              docker exec docker-redmine-redmine-1 supervisorctl tail puma || true
+              docker exec docker-redmine-redmine-1 supervisorctl tail puma 2>&1 || echo "Cannot get supervisor logs"
               echo "=== Redmine Logs (last 100 lines) ==="
-              docker logs docker-redmine-redmine-1 --tail 100
+              docker logs docker-redmine-redmine-1 --tail 100 2>&1 || true
               echo "=== Checking if port 3000 is listening ==="
-              docker exec docker-redmine-redmine-1 sh -c "netstat -tlnp 2>/dev/null || ss -tlnp" || true
+              docker exec docker-redmine-redmine-1 sh -c "netstat -tlnp 2>/dev/null || ss -tlnp 2>/dev/null || echo 'No network tools'" 2>&1 || true
               echo "=== Checking Puma process ==="
-              docker exec docker-redmine-redmine-1 sh -c "ps aux | grep puma" || true
+              docker exec docker-redmine-redmine-1 sh -c "ps aux | grep puma" 2>&1 || true
               exit 1
             fi
           done
