@@ -65,29 +65,14 @@ jobs:
             if [ $REDMINE_PORT_COUNT -ge $REDMINE_PORT_TIMEOUT ]; then
               echo "Redmine port 8080 timeout after ${REDMINE_PORT_TIMEOUT} seconds"
               docker ps
-              echo "=== Supervisor Status ==="
-              docker exec docker-redmine-redmine-1 supervisorctl status || true
-              echo "=== Checking Puma Log Files ==="
-              docker exec docker-redmine-redmine-1 ls -la /var/log/redmine/ 2>&1 || true
-              echo "=== Puma stdout ==="
-              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stdout.log 2>&1 || echo "No stdout log"
-              echo "=== Puma stderr ==="
-              docker exec docker-redmine-redmine-1 cat /var/log/redmine/puma.stderr.log 2>&1 || echo "No stderr log"
-              echo "=== Supervisor Puma Logs ==="
-              docker exec docker-redmine-redmine-1 supervisorctl tail puma 2>&1 || echo "Cannot get supervisor logs"
-              echo "=== Redmine Logs (last 100 lines) ==="
-              docker logs docker-redmine-redmine-1 --tail 100 2>&1 || true
-              echo "=== Checking if port 3000 is listening ==="
-              docker exec docker-redmine-redmine-1 sh -c "netstat -tlnp 2>/dev/null || ss -tlnp 2>/dev/null || echo 'No network tools'" 2>&1 || true
-              echo "=== Checking Puma process ==="
-              docker exec docker-redmine-redmine-1 sh -c "ps aux | grep puma" 2>&1 || true
+              docker logs docker-redmine-redmine-1 --tail 100
               exit 1
             fi
           done
           echo "Redmine is ready!"
           
           echo "Waiting for Nginx container..."
-          NGINX_TIMEOUT=300
+          NGINX_TIMEOUT=120
           NGINX_COUNT=0
           until curl -f http://localhost > /dev/null 2>&1; do
             sleep 5
@@ -95,12 +80,7 @@ jobs:
             if [ $NGINX_COUNT -ge $NGINX_TIMEOUT ]; then
               echo "Nginx startup timeout after ${NGINX_TIMEOUT} seconds"
               docker ps
-              echo "=== Nginx Logs ==="
               docker logs docker-redmine-nginx-1
-              echo "=== Redmine Logs (last 50 lines) ==="
-              docker logs docker-redmine-redmine-1 --tail 50
-              echo "=== Testing Nginx -> Redmine connection ==="
-              docker exec docker-redmine-nginx-1 curl -v http://localhost || true
               exit 1
             fi
           done
