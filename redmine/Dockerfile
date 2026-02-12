@@ -1,5 +1,7 @@
 FROM sameersbn/redmine:6.1.1
 
+ARG DISABLE_NGINX=false
+
 ENV SESSION_KEY_SUFFIX=""
 
 # Install tools
@@ -102,3 +104,9 @@ RUN set -ux \
 # Prevent plugin deletion by removing --delete from rsync
 RUN set -ux \
     && sed -i 's/rsync -avq --delete/rsync -avq/' /sbin/entrypoint.sh
+
+# Disable internal Nginx if DISABLE_NGINX is true
+RUN set -ux \
+    && if [ "$DISABLE_NGINX" = "true" ]; then \
+        sed -i 's/^\[program:nginx\]$/[program:nginx]\nautostart=false/' /etc/supervisor/conf.d/nginx.conf; \
+    fi

@@ -11,11 +11,16 @@ docker-compose settings for docker-redmine
     $ docker compose up -d
 
 ## System Configuration
-* Redmine Container
+* Nginx Container (Reverse Proxy)
+  * Base OS: Debian GNU/Linux 12 (bookworm)
+  * Nginx: 1.28.2
+  * Port: 80
+* Redmine Container (Application Server)
   * Base OS：Debian GNU/Linux 12 (bookworm)
   * Redmine：6.1.1
-  * MySQL：8.0.45
-* MySQL Container
+  * Puma: 6.6.1 (Port: 8080)
+  * Internal Nginx: Disabled
+* MySQL Container (Database)
   * Base OS：Oracle Linux Server 9.7
   * MySQL：8.0.45
   
